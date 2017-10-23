@@ -1,44 +1,44 @@
 /****************************************BIBLIOTECAS****************************************/
 #include <stdio.h> //Contiene prototipos de funciones para manipular datos de entrada y salida
-#include <graphics.h> //Contiene prototipos de funciones para preparar y manipular gr醘icos en el entorno MS-DOS
+#include <graphics.h> //Contiene prototipos de funciones para preparar y manipular gr谩ficos en el entorno MS-DOS
 #include <stdio.h> //Contiene prototipos de funciones para utilidades de uso general
 /*******************************************************************************************/
 
 /****************************************CONSTANTES****************************************/
-#define X 1280 //Limite para la creacion de nodos en posicion horizontal
+#define X 1280 //Limite para pantalla de juego
 #define Y 760 //Limite para la creacion de nodos en posicion vertical
-#define L 40 //Tama駉 de cada cuadro
-#define T X-200
+#define L 40 //Tama帽o de cada cuadro
+#define T X-200 //Limite para la creacion de nodos en posicion horizontal
 /******************************************************************************************/
 
 /****************************************ESTRUCTURAS****************************************/
-typedef struct mal{
-    int x,y;
-    struct mal *sig,*ant,*up,*dw;
-}MALLA;
+typedef struct mal{ //Declaracion de estructura
+    int x,y; //Posiciones iniciales del nodo
+    struct mal *sig,*ant,*up,*dw; //Nodos arriba(up),abajo(dw),izquierda(ant),derecha(sig)
+}MALLA; //Nombre de estructura
 
-typedef struct{
-    int x,y,c;
-}JUGADOR;
+typedef struct{ //Declaracion de estructura
+    int x,y,c; //Posiciones para movimiento y graficacion del cubo
+}JUGADOR; //Nombre de estructura
 /*******************************************************************************************/
 
 /****************************************PROTOTIPOS_DE_FUNCIONES****************************************/
 MALLA* CreaNodo(int d,int e); //Ingresa datos en un nodo
 void CreaMalla(MALLA **cab); //Creacion de malla de nodos
 void DibujaMalla(MALLA *cab); //Graficacion de malla de nodos*/
-void movimiento(MALLA *cab,JUGADOR P);
+void movimiento(MALLA *cab,JUGADOR P); //Movimiento de cubo
 /*******************************************************************************************************/
 
 /****************************************FUNCION_PRINCIPAL****************************************/
 int main(){ //Inicio de funcion principal
-    initwindow(1280,800,"MALLANODOS"); //Inicializacion de modo grafico
-    rectangle(T,0,X-5,Y);
-    rectangle(0,0,T,Y);
-    MALLA *M=NULL;
-    JUGADOR  P;
+    initwindow(1280,800,"MALLANODOS"); //Inicializacion de modo grafico y ventana de juego
+    rectangle(T,0,X-5,Y); //Creacion de pantalla de informacion
+    rectangle(0,0,T,Y); //Creacion de pantalla de juego
+    MALLA *M=NULL; //Inicializacion de malla
+    JUGADOR  P; //Declaracion de jugador
     CreaMalla(&M); //Llamado a funcion de creacion de malla
     DibujaMalla(M); //Llamado a funcion para dibujar malla
-    movimiento(M,P);
+    movimiento(M,P); //Llamado a funcion de movimiento
     system("pause"); //Pausa del sistema para visualizacion del modo grafico
 } //Fin de funcion principal
 /*************************************************************************************************/
@@ -47,43 +47,42 @@ int main(){ //Inicio de funcion principal
 MALLA* CreaNodo(int d,int e){ //Inicio de funcion para creacion de nodo paso por valor de coordenadas x,y
     MALLA *nuevo; //Declaracion de nodo
     nuevo=(MALLA*)malloc(sizeof(MALLA)); //Creacion de nodo
-    if(nuevo){ //Comprobaci髇 de la existencia de nodo nuevo
-        nuevo->x=d; //Inicializaci髇 de coordenada en x
-        nuevo->y=e; //Inicializaci髇 de coordena en y
+    if(nuevo){ //Comprobaci贸n de la existencia de nodo nuevo
+        nuevo->x=d; //Inicializaci贸n de coordenada en x
+        nuevo->y=e; //Inicializaci贸n de coordena en y
         nuevo->sig=nuevo->ant=nuevo->dw=nuevo->up=NULL; //Declaracion para saber donde continua el nodo siguiente
-    } //Fin de comprobaci髇
+    } //Fin de comprobaci贸n
     return(nuevo); //Retorno de nodo con datos
 } //Fin de funcion
 
 void CreaMalla(MALLA **cab){ //Inicio de funcion para creacion de datos de la malla de nodos
     int i,j,n,m; //Declaracion de variables de contadores
-    m=(T)/L;
-    n=Y/L;
-    MALLA *nuevo;
-    MALLA *auxarriba=NULL; //Declaracion de nodo auxiliar para vinculacion de nodo arriba
-    MALLA *auxanterior=NULL; //Declaracion de nodo auxiliar para vinculacion de nodo anterior
-    MALLA *aux=NULL; //Declaracion de nodo auxiliar para recorrido de nodos
-    MALLA *aux2=NULL;
+    m=(T)/L; //Numero maximo de nodos en posicion horizontal
+    n=Y/L; //Numero maximo de nodos en posicion vertical
+    MALLA *nuevo; //Declaracion de nodo principal
+    MALLA *auxarriba=NULL; //Declaracion de nodo de arriba de nodo principal
+    MALLA *auxanterior=NULL; //Declaracion de nodo anterior al principal
+    MALLA *aux=NULL; //Declaracion de nodo auxiliar para enlazamiento de nodos
+    MALLA *aux2=NULL;  //Declaracion de nodo auxilar para inicializacion de nodo de arriba
     for(i=0;i<n;i++){ //Inicio de ciclo para recorrido en y
         for(j=0;j<m;j++){ //Inicio de ciclo para recorrido en x
             nuevo=CreaNodo(j*L,i*L); //Llamado a funcion para crear nodo
             if(nuevo){ //Comprobacion de la existencia del nodo
-                if(!*cab){ //Iteracion para enlazamiento de nodo
+                if(!*cab){ //Iteracion para creacion de cabecera
                     *cab=nuevo; //Enlazamiento de cabecera
-                    aux=nuevo;
-                    auxarriba=nuevo;
-                    aux2=nuevo;
-                    auxanterior=nuevo;
+                    aux=nuevo; //Inicializacion de nodo auxiliar
+                    auxarriba=nuevo; //Inicializacion de nodo arriba
+                    aux2=nuevo; //Inicializacion de auxiliar para nodo arriba
                 } //Fin de iteracion
                 else{ //Iteracion para enlazamiento de nodos
                     nuevo->ant=auxanterior; //Enlazamiento con nodo anterior
                     auxanterior=nuevo; //Enlazamiento de nodo anterior con nodo actual;
                     auxanterior->sig=NULL; //Creacion de nodo siguiente del nodo anterior
-                    aux->sig=nuevo;
-                    aux=aux->sig;
+                    aux->sig=nuevo; //Enlazamiento de nodo auxilar con nodo principal
+                    aux=aux->sig; //Creacion de nodo siguiente
                     if(j!=0 && i==0){ //Iteracion creacion de hilera de arriba
                         auxarriba->sig=nuevo; //Recorrido de hilera de arriba;
-                        auxarriba=auxarriba->sig;
+                        auxarriba=auxarriba->sig; //Creacion de nodo siguiente de arriba
                     } //Fin de iteracion para creacion de hilera de arriba
                     if(j==0){ //Iteracion para inicio de auxarriba;
                         auxarriba=aux2; //Inicio de recorrido de hilera arriba
@@ -94,9 +93,9 @@ void CreaMalla(MALLA **cab){ //Inicio de funcion para creacion de datos de la ma
                         nuevo->up=auxarriba; //Enlazamiento de nodo actual con nodo arriba
                         auxarriba=auxarriba->sig; //Recorrido de nodo arriba
                     } //Fin de iteracion para recorrido de hilera arriba
-                    if(j==0){
-                        aux2=nuevo;
-                    }
+                    if(j==0){ //Iteracion para comenzar hilera de arriba
+                        aux2=nuevo; //Inicilazacion de hilera de arriba
+                    } //Fin de iteracion
                 }
             }
         } //Fin de ciclo de recorrido en x
@@ -115,104 +114,105 @@ void DibujaMalla(MALLA *cab){ //Inicio de funcion para graficar malla
             coor[5]=cab->y+L; //Coordenda y de tercer punto de cuadrado
             coor[6]=cab->x; //Coordenada x de cuarto punto de cuadrado
             coor[7]=cab->y+L; //Coordenada y de cuarto punto de cuadrado
-            setfillstyle(SOLID_FILL,1);
-            fillpoly(4,coor); //Graficacion de cuadrado con relleno
+            setfillstyle(SOLID_FILL,0); //Seleccion de color de fondo
+            fillpoly(4,coor); //Graficacion de cuadrado
         } //Fin de ciclo para graficar malla
     } //Fin de comprobacion de malla
 } //Fin de funcion para graficar malla
 
 void movimiento(MALLA *cab,JUGADOR P){
-    int tecla,coor[8];
-    P.x=cab->x;
-    P.y=cab->y;
-    coor[0]=P.x;
-    coor[1]=P.y;
-    coor[2]=P.x+L;
-    coor[3]=P.y;
-    coor[4]=P.x+L;
-    coor[5]=P.y+L;
-    coor[6]=P.x;
-    coor[7]=P.y+L;
-    setfillstyle(SOLID_FILL,15);
-    fillpoly(4,coor);
-    do{
-        tecla=getch();
-        switch(tecla){
-        case 72:
-            if(cab->up){
-                setfillstyle(SOLID_FILL,0);
-                fillpoly(4,coor);
-                cab=cab->up;
-                P.x=cab->x;
-                P.y=cab->y;
-                coor[0]=P.x;
-                coor[1]=P.y;
-                coor[2]=P.x+L;
-                coor[3]=P.y;
-                coor[4]=P.x+L;
-                coor[5]=P.y+L;
-                coor[6]=P.x;
-                coor[7]=P.y+L;
-                setfillstyle(SOLID_FILL,15);
-                fillpoly(4,coor);
-            }
-            break;
-        case 80:
-            if(cab->dw){
-                cab=cab->dw;
-                setfillstyle(SOLID_FILL,0);
-                fillpoly(4,coor);
-                P.x=cab->x;
-                P.y=cab->y;
-                coor[0]=P.x;
-                coor[1]=P.y;
-                coor[2]=P.x+L;
-                coor[3]=P.y;
-                coor[4]=P.x+L;
-                coor[5]=P.y+L;
-                coor[6]=P.x;
-                coor[7]=P.y+L;
-                setfillstyle(SOLID_FILL,15);
-                fillpoly(4,coor);
-            }
-            break;
-        case 75:
-            if(cab->ant){
-                cab=cab->ant;
-                setfillstyle(SOLID_FILL,0);
-                fillpoly(4,coor);
-                P.x=cab->x;
-                P.y=cab->y;
-                coor[0]=P.x;
-                coor[1]=P.y;
-                coor[2]=P.x+L;
-                coor[3]=P.y;
-                coor[4]=P.x+L;
-                coor[5]=P.y+L;
-                coor[6]=P.x;
-                coor[7]=P.y+L;
-                setfillstyle(SOLID_FILL,15);
-                fillpoly(4,coor);
-            }
-            break;
+    int tecla,coor[8]; //Declaracion de coordenadas y tecla para movimiento
+    P.x=cab->x; //Inicializacion de posicion x en estructura
+    P.y=cab->y; //Inicializacion de posicion y en estructura
+    coor[0]=P.x; //Primer punto de x
+    coor[1]=P.y; //Primer punto de y
+    coor[2]=P.x+L; //Segundo punto de x
+    coor[3]=P.y; //Segundo punto de y
+    coor[4]=P.x+L; //Tercer punto de x
+    coor[5]=P.y+L; //Tercer punto de y
+    coor[6]=P.x; //Cuarto punto de x
+    coor[7]=P.y+L; //Cuarto punto de y
+    setfillstyle(SOLID_FILL,15); //Seleccion de color y tipo de relleno
+    fillpoly(4,coor); //Graficacion de cuadrado 
+    do{ //Ciclo para mover cuadrado
+        tecla=getch(); //Obtencion de tecla
+        switch(tecla){ //Casos de tecla
+        case 72: //Tecla arriba
+            if(cab->up){ //Comprobacion de que existe la posicion de arriba
+                setfillstyle(SOLID_FILL,0); //Seleccion de color igual al del fondo
+                fillpoly(4,coor); //Graficado de cuadro 
+                cab=cab->up; //Dezplazamiento de nodo
+                P.x=cab->x; //Inicializacion de posicion x en estructura
+                P.y=cab->y; //Inicializacion de posicion y en estructura
+                coor[0]=P.x; //Primer punto de x
+                coor[1]=P.y; //Primer punto de y
+                coor[2]=P.x+L; //Segundo punto de x
+                coor[3]=P.y; //Segundo punto de y
+                coor[4]=P.x+L; //Tercer punto de x
+                coor[5]=P.y+L; //Tercer punto de y
+                coor[6]=P.x; //Cuarto punto de x
+                coor[7]=P.y+L; //Cuarto punto de y
+                setfillstyle(SOLID_FILL,15); //Seleccion de color difente al del fondo
+                fillpoly(4,coor); //Graficado de cuadro
+            } //Fin de comprobacion
+            break; //Fin de opcion
+        case 80: //Tecla abajo
+            if(cab->dw){ //Comprobacion de que existe la posicion de abajo
+                setfillstyle(SOLID_FILL,0); //Seleccion de color igual al del fondo 
+                fillpoly(4,coor); //Graficado de cuadro
+                cab=cab->dw; //Dezplazamiento de nodo
+                P.x=cab->x; //Inicializacion de posicion x en estructura
+                P.y=cab->y; //Inicializacion de posicion y en estructura
+                coor[0]=P.x; //Primer punto de x
+                coor[1]=P.y; //Primer punto de y
+                coor[2]=P.x+L; //Segundo punto de x
+                coor[3]=P.y; //Segundo punto de y
+                coor[4]=P.x+L; //Tercer punto de x
+                coor[5]=P.y+L; //Tercer punto de y
+                coor[6]=P.x; //Cuarto punto de x
+                coor[7]=P.y+L; //Cuarto punto de y
+                setfillstyle(SOLID_FILL,15); //Seleccion de color difente al del fondo
+                fillpoly(4,coor); //Graficado de cuadro
+            } //Fin de comprobacion
+            break; //Fin de opcion
+        case 75: //Tecla izquierda
+            if(cab->ant){ //Comprobacion de que existe la posicion izquierda
+                setfillstyle(SOLID_FILL,0); //Seleccion de color igual al del fondo 
+                fillpoly(4,coor); //Graficado de cuadro
+                cab=cab->ant; //Dezplazamiento de nodo
+                P.x=cab->x; //Inicializacion de posicion x en estructura
+                P.y=cab->y; //Inicializacion de posicion y en estructura
+                coor[0]=P.x; //Primer punto de x
+                coor[1]=P.y; //Primer punto de y
+                coor[2]=P.x+L; //Segundo punto de x
+                coor[3]=P.y; //Segundo punto de y
+                coor[4]=P.x+L; //Tercer punto de x
+                coor[5]=P.y+L; //Tercer punto de y
+                coor[6]=P.x; //Cuarto punto de x
+                coor[7]=P.y+L; //Cuarto punto de y
+                setfillstyle(SOLID_FILL,15); //Seleccion de color difente al del fondo
+                fillpoly(4,coor); //Graficado de cuadro
+            } //Fin de comprobacion
+            break; //Fin de opcion
         case 77:
-            if(cab->sig){
-                cab=cab->sig;
-                setfillstyle(SOLID_FILL,0);
-                fillpoly(4,coor);
-                P.x=cab->x;
-                P.y=cab->y;
-                coor[0]=P.x;
-                coor[1]=P.y;
-                coor[2]=P.x+L;
-                coor[3]=P.y;
-                coor[4]=P.x+L;
-                coor[5]=P.y+L;
-                coor[6]=P.x;
-                coor[7]=P.y+L;
-                setfillstyle(SOLID_FILL,15);
-                fillpoly(4,coor);
-            }
-        }
-    }while(tecla!=27);
-}
+            if(cab->sig){ //Comprobacion de que existe la posicion derecha 
+                setfillstyle(SOLID_FILL,0); //Seleccion de color igual al del fondo
+                fillpoly(4,coor); //Graficado de cuadro
+                cab=cab->sig; //Dezplazamiento de nodo
+                P.x=cab->x; //Inicializacion de posicion x en estructura
+                P.y=cab->y; //Inicializacion de posicion y en estructura
+                coor[0]=P.x; //Primer punto de x
+                coor[1]=P.y; //Primer punto de y
+                coor[2]=P.x+L; //Segundo punto de x
+                coor[3]=P.y; //Segundo punto de y
+                coor[4]=P.x+L; //Tercer punto de x
+                coor[5]=P.y+L; //Tercer punto de y
+                coor[6]=P.x; //Cuarto punto de x
+                coor[7]=P.y+L; //Cuarto punto de y
+                setfillstyle(SOLID_FILL,15); //Seleccion de color difente al del fondo
+                fillpoly(4,coor); //Graficado de cuadro
+            } //Fin de comprobacion
+            break; //Fin de opcion
+        } //Fin de opciones
+    }while(tecla!=27); //Fin de ciclo en caso de oprimir la tecla Esc
+} //Fin de funcion
